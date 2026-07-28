@@ -1,0 +1,364 @@
+aid: sydney-airport
+name: Sydney Airport
+review:
+  question: Does Sydney Airport publish a public developer portal, documented API, or
+    machine-readable API contract?
+  answer: false
+  date: '2026-07-28'
+  reviewer: API Evangelist
+  method: direct HTTP probing of sydneyairport.com.au, its subdomains, its sitemap,
+    its published terms, and its identity provider
+findings:
+  summary: |
+    Sydney Airport Corporation Limited (SACL, ACN 082 578 809) publishes no developer
+    portal, no API documentation, no OpenAPI/AsyncAPI/GraphQL descriptor, no SDKs, and
+    no terms governing machine access. Both developer.sydneyairport.com.au and
+    api.sydneyairport.com.au resolve in DNS and terminate on a Microsoft Azure
+    Application Gateway v2, but every path probed on both returned HTTP 502 Bad Gateway
+    - infrastructure exists, nothing is served. developers.sydneyairport.com.au and
+    docs.sydneyairport.com.au do not resolve at all.
+
+    The public website is nevertheless backed by live, unauthenticated, undocumented
+    JSON endpoints under the /_a/ prefix. GET /_a/flights with query parameters and
+    GET /_a/security-wait-times both returned HTTP 200 with content-type
+    application/json on 2026-07-28. These are website backends, not a product: there
+    is no reference, no versioning, no stability commitment, no rate-limit statement,
+    and no licence. They are recorded here as evidence of interface shape, and are
+    deliberately NOT listed in apis.yml, because the API Evangelist standard for
+    apis[] is a real AND documented API.
+
+    The only credentialed surface is InfoSYD, the airline / ground-handler / on-airport
+    tenant portal at /infosyd (also Disallow'd in robots.txt). It is a JavaScript SPA
+    that redirects unauthenticated visitors to a ForgeRock Access Management identity
+    provider at id.syd.com.au, using OAuth 2.0 authorization code flow with PKCE
+    (S256), client_id INFOSYD_APP_Client, and scope "openid profile email infosyd".
+    The realm's OpenID Connect Discovery document is publicly readable and has been
+    harvested verbatim to authentication/sydney-airport-openid-configuration.json.
+    That document is the single machine-readable contract Sydney Airport publishes,
+    and it describes only how to authenticate - not what you may then call.
+
+    Sydney Airport is not part of the travel distribution chain in the intermediation
+    sense. It sells no seats, holds no bookable inventory, issues no PNRs or e-tickets,
+    holds no IATA/ARC accreditation relationship with agencies, and has no GDS or NDC
+    posture. Its revenue is aeronautical charges, parking, retail concessions and
+    property. Distribution model is therefore not-applicable and NDC posture is
+    not applicable.
+  probes:
+    - url: https://www.sydneyairport.com.au/
+      status: 200
+      note: Corporate and passenger website. Contentful-backed.
+    - url: https://developer.sydneyairport.com.au/
+      status: 502
+      note: DNS resolves; Server header "Microsoft-Azure-Application-Gateway/v2"; no
+        backend. /docs and /index.html on the same host also 502.
+    - url: https://api.sydneyairport.com.au/
+      status: 502
+      note: DNS resolves; same Azure Application Gateway; /flights, /api, /health,
+        /swagger/index.html, /swagger.json and /openapi.json all 502.
+    - url: https://developers.sydneyairport.com.au/
+      status: 0
+      note: NXDOMAIN - could not resolve host.
+    - url: https://docs.sydneyairport.com.au/
+      status: 0
+      note: NXDOMAIN - could not resolve host.
+    - url: https://www.sydneyairport.com.au/developers
+      status: 404
+    - url: https://www.sydneyairport.com.au/api
+      status: 404
+    - url: https://www.sydneyairport.com.au/docs
+      status: 404
+    - url: https://www.sydneyairport.com.au/openapi.json
+      status: 404
+    - url: https://www.sydneyairport.com.au/swagger.json
+      status: 404
+    - url: https://www.sydneyairport.com.au/api-docs
+      status: 404
+    - url: https://www.sydneyairport.com.au/robots.txt
+      status: 200
+      note: 'Disallow: /infosyd and /oursyd. Sitemap: https://www.sydneyairport.com.au/sitemap.xml'
+    - url: https://www.sydneyairport.com.au/sitemap.xml
+      status: 200
+      note: 18 child sitemaps, 383 URLs expanded. No developer, API, data-portal or
+        open-data page anywhere in the index.
+    - url: https://www.sydneyairport.com.au/.well-known/security.txt
+      status: 200
+      note: 'Contact: cybersafety_[at]_syd[dot]com[dot]au. Policy points at
+        https://www.sydneyairport.com.au/vulnerability-disclosure-policy'
+    - url: https://www.sydneyairport.com.au/vulnerability-disclosure-policy
+      status: 404
+      note: BROKEN - the policy URL advertised in security.txt does not exist. Variants
+        /vulnerability-disclosure, /corporate/vulnerability-disclosure-policy and
+        /security also returned 404.
+    - url: https://www.sydneyairport.com.au/_a/flights
+      status: 500
+      note: Returns {"Internal server error"} as application/json without query
+        parameters.
+    - url: https://www.sydneyairport.com.au/_a/flights?flightType=arrival&terminalType=international&date=2026-07-28&sortColumn=scheduled_time&ascending=true&showAll=true
+      status: 200
+      note: application/json. Undocumented website backend. Response shape observed -
+        totalFlightCount, terminalType, flightType, flightData[] with id, airline,
+        airlineCode, tailLogoUrl, destinations[], flightNumbers[], operationalSuffix,
+        terminalType, terminalNumber, flightType, scheduledTime, estimatedTime,
+        scheduledDate, estimatedDate, latestTime, status, statusColor.
+    - url: https://www.sydneyairport.com.au/_a/security-wait-times
+      status: 200
+      note: application/json. Undocumented website backend returning per-terminal
+        security wait time with date, attribute, refreshtime, value.
+    - url: https://www.sydneyairport.com.au/infosyd
+      status: 200
+      note: Vue SPA titled "Login"; unauthenticated request 302s to
+        https://id.syd.com.au/am/XUI/?realm=/alpha&authIndexType=service&authIndexValue=SYDLogin
+        wrapping an OAuth 2.0 authorize call - client_id=INFOSYD_APP_Client,
+        response_type=code, scope=openid profile email infosyd,
+        code_challenge_method=S256, redirect_uri=https://sydneyairport.com.au/infosyd/callback.
+    - url: https://id.syd.com.au/am/oauth2/.well-known/openid-configuration
+      status: 200
+      note: OpenID Connect Discovery 1.0 document, 5554 bytes, application/json.
+        Harvested verbatim on 2026-07-28 to
+        authentication/sydney-airport-openid-configuration.json.
+    - url: https://www.sydneyairport.com.au/terms
+      status: 200
+    - url: https://www.sydneyairport.com.au/privacy
+      status: 200
+    - url: https://www.sydneyairport.com.au/copyright
+      status: 200
+    - url: https://www.sydneyairport.com.au/corporate/planning-and-projects/planning-approvals/digital-data-reference-guide
+      status: 200
+      note: The only "data" specification Sydney Airport publishes is a CADD data
+        exchange standard - Bentley MicroStation .dgn seed files on the MGA'94
+        coordinate system, plus five CADD Manual for Data Exchange volumes for
+        surveyors, external services, airport lighting and building services. It is a
+        real interoperability contract, but for spatial engineering deliverables, not
+        for software.
+    - url: https://github.com/sydneyairport
+      status: 404
+      note: No GitHub organisation. /sydney-airport and the orgs API also 404.
+    - url: https://external.airport.ai/
+      status: 200
+      note: Third-party vendor (Airport AI customer service platform) referenced from
+        Sydney Airport site assets. Vendor dependency, not a Sydney Airport API.
+    - url: https://premiumservices.sydneyairport.com.au/
+      status: 429
+      note: Rate-limited on probe; not a developer surface.
+    - url: https://prebook.sydneyairport.com.au/en/
+      status: 200
+      note: Consumer parking pre-booking storefront. No API surface published.
+switchingCost:
+  interfaceShape:
+    value: proprietary-undocumented
+    standardsNamed:
+      - name: OpenID Connect Discovery 1.0 / OAuth 2.0 with PKCE (RFC 7636)
+        where: id.syd.com.au ForgeRock Access Management realm /alpha
+        status: implemented and publicly discoverable
+        note: This is the ONLY open standard Sydney Airport implements at an
+          integration boundary, and it governs authentication only. It does not make
+          the data interface portable.
+      - name: IATA and ICAO location/airline coding
+        where: Flight payloads and airport identity (SYD / YSSY, airlineCode QF, EK,
+          LA, CI, 6E observed)
+        status: used as data values, not as a published interface contract
+    standardsAbsent:
+      - IATA NDC (no relevance - Sydney Airport does not distribute inventory)
+      - OpenTravel / OTA
+      - ACRIS Semantic Model (ACI's airport data standard) - no reference found
+        anywhere on sydneyairport.com.au
+      - AODB / A-CDM public data-sharing interface - none published
+      - OpenAPI, AsyncAPI, GraphQL, JSON Schema - none published
+    evidence: No OpenAPI, no API reference, no schema, no versioning policy. The live
+      /_a/flights and /_a/security-wait-times endpoints are bespoke to this website
+      and carry a bespoke response shape. Any consumer building on them is building on
+      an unversioned private contract that SACL may change or withdraw without notice.
+  secondSource:
+    value: alternatives-with-migration
+    alternativesConsidered:
+      - name: OAG Flight Info API
+        note: Commercial aviation schedules, status, seats and connections in RESTful
+          JSON; covers SYD.
+      - name: FlightAware AeroAPI
+        note: Query-based flight tracking and status; Australia in coverage footprint.
+      - name: FlightLabs (goflightlabs.com)
+        note: Publishes SYD-specific real-time, schedule and future-flight endpoints.
+      - name: Cirium, aviationstack, Flightradar24
+        note: Same class of commercial aggregator; all resell SYD movements.
+      - name: Western Sydney International (Nancy-Bird Walton) Airport
+        note: Physical second source in the Sydney basin, opening to freight 27 July
+          2026 and to passengers 25 October 2026, operating 24 hours with no curfew.
+          For the first time an airline has a genuine alternative Sydney gateway.
+    reasoning: For flight schedule and status data the aggregators are real
+      alternatives - but they are a different commercial relationship, a different
+      data model, and a paid contract, so moving is a project rather than a swap. For
+      data that only the airport operator holds - live security wait times, terminal
+      and gate assignment, stand allocation, kerbside and car park state - there is
+      no second source at all. For physical access to Sydney's aeronautical
+      infrastructure, SYD was a monopoly until WSI opens later in 2026.
+  exitPath:
+    value: export-on-request
+    operationCited: null
+    detail: There is no export, dump, bulk or reporting operation, because there is no
+      API. The only implemented data-portability commitment is a personal-information
+      access and correction right under Australian Privacy Principle 12 of the Privacy
+      Act 1988 (Cth), described at section 19 of the privacy policy.
+    verbatim: >-
+      "You may request access to, and correction of, any of your personal information
+      held by Sydney Airport, and such access will be provided, and corrections made
+      except where Sydney Airport refuses such requests in accordance with the APPs."
+    channel: privacy@syd.com.au / Locked Bag 5000, Sydney International Airport NSW
+      2020 / (02) 9667 9111. No application fee for access; administrative fees may
+      apply for provision.
+    note: This is an individual privacy right, not a data-portability mechanism for an
+      integrator. An organisation that built on the /_a/ endpoints and wanted out would
+      have nothing to export - it never had a store.
+  identifierPortability:
+    value: IATA airline designators, IATA flight numbers and terminal codes travel;
+      the flight record key does not
+    detail: Observed in the live /_a/flights payload - airlineCode (QF, EK, LA, CI,
+      6E and codeshare partners), flightNumbers[] as full IATA designators (QF4,
+      EK5040, AA7264), terminalNumber (T1/T2/T3), terminalType (INTERNATIONAL /
+      DOMESTIC), and destination city names as free text rather than IATA station
+      codes. The primary key on each flight record is an opaque vendor-internal string
+      (examples observed - "idKLYQ9raQSjIji1CHnV", "hfiUjiX4YPr2ArjeLnLC") that has no
+      meaning outside this system and cannot be reconciled against any other operator's
+      data. The airport itself is identified only by shared codes - IATA SYD, ICAO
+      YSSY - and there is no PNR, record locator, IATA/ARC agency number, GDS record
+      ID, hotel chain code or GIATA ID anywhere in the surface, because Sydney Airport
+      never touches a booking.
+  contractualLockIn:
+    value: published terms prohibit automated access outright; there is no API contract
+      to be locked into
+    entity: Sydney Airport Corporation Limited (ACN 082 578 809) (SACL)
+    verbatim:
+      - source: https://www.sydneyairport.com.au/terms
+        clause: prohibited use - automated retrieval
+        text: >-
+          "retrieves, scrapes, or indexes an Online Service or via the Online Services,
+          any content or material using an automated device, software, process or other
+          similar means"
+      - source: https://www.sydneyairport.com.au/terms
+        clause: prohibited use - redistribution
+        text: >-
+          "reproduces, republishes, retransmits, modifies, adapts, distributes or
+          translates any content or material on the Online Services without our express
+          written permission"
+      - source: https://www.sydneyairport.com.au/terms
+        clause: no licence granted
+        text: >-
+          "Your access to the material and content we provide through our Online
+          Services, does not grant you any ownership (or licence, unless otherwise
+          specified)"
+      - source: https://www.sydneyairport.com.au/terms
+        clause: termination at will
+        text: >-
+          "We reserve the right to suspend or terminate your access to our Online
+          Services at any time for operational, safety or security reasons"
+      - source: https://www.sydneyairport.com.au/terms
+        clause: licence granted BY the user to SACL
+        text: >-
+          "you grant us a perpetual, worldwide, royalty-free and irrevocable licence to
+          use, copy, modify, distribute, publish, communicate to the public and process
+          the information"
+      - source: https://www.sydneyairport.com.au/copyright
+        clause: copyright ownership and permitted reuse
+        text: >-
+          "The material contained on this website is subject to copyright. The
+          copyright owner is Sydney Airport Corporation Limited (ACN 082 578 809)
+          (SACL)."
+        note: Material may be copied or downloaded for personal, in-house or
+          non-commercial use provided the copyright owner is acknowledged; any other
+          purpose requires SACL's express consent unless permitted under the Copyright
+          Act 1968.
+    notPublished:
+      - minimum term
+      - exclusivity
+      - full-content agreement
+      - segment or transaction fees
+      - termination notice period
+      - API service level or deprecation policy
+    reading: The asymmetry is the finding. The terms grant SACL a perpetual,
+      irrevocable licence over information users submit, grant the user no licence in
+      return, ban automated access, and reserve unilateral termination. There is no
+      lock-in in the contractual sense only because there is no contract on offer -
+      the cost of leaving is zero because the cost of arriving is that you were never
+      permitted to arrive.
+  distributionModel:
+    value: not-applicable
+    ndcPosture: Not applicable. Sydney Airport is an airport operator, not a carrier
+      or an agency. It holds no bookable inventory, files no fares, issues no tickets
+      or PNRs, has no IATA NDC certification level to claim, publishes no NDC endpoint,
+      and levies no GDS surcharge. Airlines distribute through their own channels and
+      pay SACL aeronautical charges for use of the infrastructure; slot allocation at
+      SYD sits with Airport Coordination Australia under the Sydney Airport Demand
+      Management Act 1997, not with a distribution system.
+    revenue: aeronautical charges, car parking and ground transport, retail
+      concessions, property and hotel.
+  accessGate:
+    value: none-published
+    developerMustSign: Nothing, because nothing is offered. There is no application
+      form, no key request, no partner API programme, no self-serve signup, and no API
+      terms of use anywhere on sydneyairport.com.au or in its sitemap. The only
+      credentialed surface, InfoSYD, is not open to developers - it is issued to
+      airlines, ground handlers, border agencies and on-airport tenants through a
+      commercial or operational relationship with SACL and authenticated by a
+      ForgeRock OIDC login at id.syd.com.au. An airport-partner developer would
+      separately be routed through AIRDAT Passport for on-airport induction and would
+      need an Aviation Security Identification Card for physical access - both
+      accreditation regimes for people, not for software.
+    portalConfirmed: false
+    portalUrl: null
+  agentReadiness:
+    llmsTxt: not probed as a published artifact; no /llms.txt referenced in sitemap or
+      robots.txt
+    mcp: none published
+    note: A third-party conversational vendor (Airport AI) is embedded in the site
+      assets, which means the airport's own operational data is already being exposed
+      to an agent layer - through a vendor's contract, not through a Sydney Airport
+      interface.
+sources:
+  - url: https://www.sydneyairport.com.au/terms
+    type: TermsOfService
+    note: Prohibited-use, licence, and termination clauses quoted verbatim above.
+  - url: https://www.sydneyairport.com.au/privacy
+    type: PrivacyPolicy
+    note: Section 19 access and correction right under the Australian Privacy
+      Principles.
+  - url: https://www.sydneyairport.com.au/copyright
+    type: Copyright
+    note: SACL copyright ownership and non-commercial reuse permission.
+  - url: https://www.sydneyairport.com.au/.well-known/security.txt
+    type: SecurityTxt
+    note: Present, but the policy URL it advertises returns 404.
+  - url: https://id.syd.com.au/am/oauth2/.well-known/openid-configuration
+    type: OpenIDConnectDiscovery
+    note: Harvested to authentication/sydney-airport-openid-configuration.json on
+      2026-07-28, HTTP 200.
+  - url: https://www.sydneyairport.com.au/infosyd
+    type: PartnerPortal
+    note: Gated aviation-partner portal; OAuth 2.0 authorization code + PKCE via
+      ForgeRock.
+  - url: https://www.sydneyairport.com.au/corporate/planning-and-projects/planning-approvals/digital-data-reference-guide
+    type: DataStandard
+    note: CADD/MicroStation spatial data exchange manuals - the airport's only
+      published interoperability specification.
+  - url: https://www.accc.gov.au/media-release/sydney-aviation-alliances-proposed-acquisition-of-sydney-airport-not-opposed
+    type: Regulatory
+    note: ACCC decision not to oppose the Sydney Aviation Alliance acquisition;
+      ownership context for the 2022 ASX delisting.
+  - url: https://www.pm.gov.au/media/its-official-western-sydney-open-passengers-25-october-and-freight-26-july-2026
+    type: Reference
+    note: Western Sydney International opening dates - the emerging second source in
+      the Sydney basin.
+actions:
+  apisListed: 0
+  apisYmlCreated: true
+  openapiHarvested: false
+  openapiDirectory: omitted - no OpenAPI, AsyncAPI, GraphQL or Postman artifact exists
+    to harvest
+  artifactsSaved:
+    - authentication/sydney-airport-openid-configuration.json
+  reason: |
+    apis[] is deliberately empty. Sydney Airport has real machine-readable surfaces -
+    two live JSON website backends and a ForgeRock OIDC realm - but not one of them is
+    a documented API with a published contract, and the site's own terms forbid
+    programmatic use. Listing the /_a/ endpoints as APIs would misrepresent a private
+    website backend as a product and would encourage a use the operator has expressly
+    prohibited. The honest record is - identity captured, gate documented, switching
+    cost measured, apis[] empty.

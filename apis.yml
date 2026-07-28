@@ -1,0 +1,73 @@
+aid: sydney-airport
+url: https://raw.githubusercontent.com/api-evangelist/sydney-airport/refs/heads/main/apis.yml
+name: Sydney Airport
+kind: company
+humanURL: https://www.sydneyairport.com.au/
+description: Sydney Airport Corporation Limited (ACN 082 578 809) operates Sydney
+  Kingsford Smith Airport (IATA SYD, ICAO YSSY), Australia's principal international
+  gateway, under private ownership by the Sydney Aviation Alliance consortium since
+  its 2022 ASX delisting. In the travel distribution chain it is infrastructure rather
+  than an intermediary - it sells no seats, holds no inventory, issues no PNRs, and
+  sits outside the GDS and IATA NDC value chain entirely, monetising aeronautical
+  charges, car parking, retail concessions and property instead. Its API posture is
+  effectively nil - Sydney Airport publishes no developer portal, no API documentation,
+  no OpenAPI, and no terms of use for machine access. Its public website is backed by
+  undocumented JSON endpoints under /_a/ that return live flight and security wait-time
+  data with no published contract, while its only credentialed partner surface, InfoSYD,
+  is gated behind a ForgeRock OAuth 2.0 / OpenID Connect identity provider at
+  id.syd.com.au and is restricted to airlines, ground handlers and on-airport tenants.
+  The published terms of use expressly prohibit automated retrieval, scraping and
+  indexing of the site, so there is public data but no public interface - and no
+  documented exit path beyond an Australian Privacy Principle 12 personal-information
+  access request.
+accessModel:
+  pricing: unknown
+  onboarding: unknown
+  trial: false
+  try_now: false
+  public: false
+  label: No public API program published
+  confidence: high
+  source:
+  - website
+  - terms
+  generated: '2026-07-28'
+  method: probed
+image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+tags:
+- Travel
+- Australia
+- Airports
+- Aviation
+- Airport Infrastructure
+- Transportation
+- Flight Information
+- Passenger Experience
+created: '2026-07-28'
+modified: '2026-07-28'
+specificationVersion: '0.19'
+apis: []
+common:
+- type: Website
+  url: https://www.sydneyairport.com.au/
+- type: Corporate
+  url: https://www.sydneyairport.com.au/corporate
+- type: FlightStatus
+  url: https://www.sydneyairport.com.au/flights/
+- type: PartnerPortal
+  url: https://www.sydneyairport.com.au/infosyd
+- type: Authentication
+  url: authentication/sydney-airport-openid-configuration.json
+- type: TermsOfService
+  url: https://www.sydneyairport.com.au/terms
+- type: PrivacyPolicy
+  url: https://www.sydneyairport.com.au/privacy
+- type: Copyright
+  url: https://www.sydneyairport.com.au/copyright
+- type: SecurityTxt
+  url: https://www.sydneyairport.com.au/.well-known/security.txt
+- type: LinkedIn
+  url: https://www.linkedin.com/company/sydneyairport/
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com
