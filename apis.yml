@@ -48,6 +48,10 @@ modified: '2026-07-28'
 specificationVersion: '0.19'
 apis: []
 common:
+- type: VulnerabilityDisclosure
+  url: security/sydney-airport-vulnerability-disclosure.yml
+- type: DomainSecurity
+  url: security/sydney-airport-domain-security.yml
 - type: Website
   url: https://www.sydneyairport.com.au/
 - type: Corporate
@@ -57,7 +61,25 @@ common:
 - type: PartnerPortal
   url: https://www.sydneyairport.com.au/infosyd
 - type: Authentication
+  url: authentication/sydney-airport-authentication.yml
+- type: OpenIDConnect
   url: authentication/sydney-airport-openid-configuration.json
+- type: OAuthScopes
+  url: scopes/sydney-airport-scopes.yml
+- type: WellKnown
+  url: well-known/sydney-airport-well-known.yml
+- type: Conformance
+  url: conformance/sydney-airport-conformance.yml
+- type: Lifecycle
+  url: lifecycle/sydney-airport-lifecycle.yml
+- type: LLMsTxt
+  url: llms/sydney-airport-llms.txt
+- type: Security
+  url: https://www.sydneyairport.com.au/.well-known/security.txt
+- type: Support
+  url: https://www.sydneyairport.com.au/contact-us
+- type: Blog
+  url: https://www.sydneyairport.com.au/corporate/media/corporate-newsroom
 - type: TermsOfService
   url: https://www.sydneyairport.com.au/terms
 - type: PrivacyPolicy
@@ -65,7 +87,7 @@ common:
 - type: Copyright
   url: https://www.sydneyairport.com.au/copyright
 - type: SecurityTxt
-  url: https://www.sydneyairport.com.au/.well-known/security.txt
+  url: well-known/sydney-airport-security.txt
 - type: LinkedIn
   url: https://www.linkedin.com/company/sydneyairport/
 maintainers:

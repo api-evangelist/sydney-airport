@@ -1,0 +1,156 @@
+generated: '2026-07-28'
+method: derived
+source: authentication/sydney-airport-openid-configuration.json; well-known/sydney-airport-security.txt;
+  review.yml probe log
+note: >-
+  Sydney Airport publishes no API and therefore no API-level conformance surface.
+  Every standard asserted below is evidenced by the ForgeRock Access Management
+  OpenID Connect Discovery document that fronts the InfoSYD partner portal, or by
+  a file live-probed on the public web host. Standards the identity provider
+  advertises are capabilities of the vendor product exposed at Sydney Airport's
+  integration boundary - they govern authentication only, and none of them makes
+  the airport's data interface portable.
+standards:
+- id: oauth2
+  name: OAuth 2.0 (RFC 6749)
+  conforms: true
+  evidence: authorization_endpoint, token_endpoint and ten grant_types_supported advertised
+    in the OIDC discovery document
+- id: oidc-core
+  name: OpenID Connect Core 1.0
+  conforms: true
+  evidence: id_token signing/encryption algorithms, userinfo_endpoint, subject_types_supported
+    public and pairwise
+- id: oidc-discovery
+  name: OpenID Connect Discovery 1.0
+  conforms: true
+  evidence: https://id.syd.com.au/am/oauth2/.well-known/openid-configuration returns
+    HTTP 200 application/json
+- id: oidc-session-management
+  name: OpenID Connect Session Management 1.0
+  conforms: true
+  evidence: check_session_iframe and end_session_endpoint present
+- id: oidc-backchannel-logout
+  name: OpenID Connect Back-Channel Logout 1.0
+  conforms: true
+  evidence: backchannel_logout_supported true, backchannel_logout_session_supported true
+- id: oidc-ciba
+  name: OpenID Connect Client-Initiated Backchannel Authentication (CIBA)
+  conforms: true
+  evidence: grant_types_supported includes urn:openid:params:grant-type:ciba
+- id: rfc7636-pkce
+  name: Proof Key for Code Exchange (RFC 7636)
+  conforms: true
+  evidence: code_challenge_methods_supported [S256, plain]; the live InfoSYD authorize
+    redirect uses code_challenge_method=S256
+- id: rfc9126-par
+  name: OAuth 2.0 Pushed Authorization Requests (RFC 9126)
+  conforms: true
+  evidence: pushed_authorization_request_endpoint advertised; require_pushed_authorization_requests
+    is false
+- id: rfc9101-jar
+  name: JWT-Secured Authorization Request (RFC 9101)
+  conforms: true
+  evidence: request_parameter_supported and request_uri_parameter_supported true, with
+    request_object_signing_alg_values_supported
+- id: jarm
+  name: JWT Secured Authorization Response Mode (JARM)
+  conforms: true
+  evidence: response_modes_supported includes jwt, query.jwt, fragment.jwt and form_post.jwt
+- id: rfc7662-introspection
+  name: OAuth 2.0 Token Introspection (RFC 7662)
+  conforms: true
+  evidence: introspection_endpoint advertised
+- id: rfc7009-revocation
+  name: OAuth 2.0 Token Revocation (RFC 7009)
+  conforms: true
+  evidence: revocation_endpoint advertised
+- id: rfc7591-dynamic-client-registration
+  name: OAuth 2.0 Dynamic Client Registration (RFC 7591)
+  conforms: true
+  evidence: registration_endpoint advertised
+- id: rfc8628-device-grant
+  name: OAuth 2.0 Device Authorization Grant (RFC 8628)
+  conforms: true
+  evidence: grant_types_supported includes urn:ietf:params:oauth:grant-type:device_code
+- id: rfc7523-jwt-bearer
+  name: JWT Profile for OAuth 2.0 Client Authentication and Authorization Grants (RFC
+    7523)
+  conforms: true
+  evidence: grant_types_supported includes urn:ietf:params:oauth:grant-type:jwt-bearer;
+    private_key_jwt client authentication supported
+- id: rfc7522-saml2-bearer
+  name: SAML 2.0 Profile for OAuth 2.0 Authorization Grants (RFC 7522)
+  conforms: true
+  evidence: grant_types_supported includes urn:ietf:params:oauth:grant-type:saml2-bearer
+- id: rfc8705-mtls
+  name: OAuth 2.0 Mutual-TLS Client Authentication and Certificate-Bound Access Tokens
+    (RFC 8705)
+  conforms: true
+  evidence: tls_client_auth and self_signed_tls_client_auth in token_endpoint_auth_methods_supported;
+    tls_client_certificate_bound_access_tokens true
+- id: uma2
+  name: User-Managed Access 2.0
+  conforms: true
+  evidence: grant_types_supported includes urn:ietf:params:oauth:grant-type:uma-ticket
+- id: rfc9116-security-txt
+  name: A File Format to Aid in Security Vulnerability Disclosure (RFC 9116)
+  conforms: partial
+  evidence: /.well-known/security.txt returns HTTP 200 with Contact and Policy fields,
+    but the Policy URL it advertises returns HTTP 404, and the file carries no Expires
+    field (mandatory in RFC 9116)
+- id: rfc8414-oauth-as-metadata
+  name: OAuth 2.0 Authorization Server Metadata (RFC 8414)
+  conforms: false
+  evidence: /am/oauth2/.well-known/oauth-authorization-server returns HTTP 404 and the
+    root /.well-known/oauth-authorization-server returns HTTP 501; metadata is only
+    served at the OIDC discovery path
+- id: rfc9727-api-catalog
+  name: 'well-known URI for Change Discovery: /.well-known/api-catalog (RFC 9727)'
+  conforms: false
+  evidence: /.well-known/api-catalog returns HTTP 404
+- id: openapi
+  name: OpenAPI Specification
+  conforms: false
+  evidence: no OpenAPI/Swagger document found on any Sydney Airport host; all api. and
+    developer. subdomain probes return HTTP 502
+- id: asyncapi
+  name: AsyncAPI
+  conforms: false
+  evidence: no event, streaming or webhook surface published
+- id: graphql
+  name: GraphQL
+  conforms: false
+  evidence: no /graphql surface resolves
+- id: rfc9457-problem-details
+  name: Problem Details for HTTP APIs (RFC 9457)
+  conforms: false
+  evidence: the undocumented /_a/ website backends return bare JSON; the observed error
+    body was {"Internal server error"} with content-type application/json, not application/problem+json
+- id: fapi
+  name: Financial-grade API (FAPI) 1.0/2.0
+  conforms: false
+  evidence: no FAPI conformance claimed or certified; the realm permits implicit and
+    password grants and does not require PAR
+- id: acris-semantic-model
+  name: ACI ACRIS Semantic Model (airport industry data standard)
+  conforms: false
+  evidence: no reference to ACRIS, AODB or A-CDM data sharing anywhere on sydneyairport.com.au
+    or in its 383-URL sitemap
+- id: iata-ndc
+  name: IATA New Distribution Capability
+  conforms: false
+  applicable: false
+  evidence: not applicable - Sydney Airport is an airport operator, holds no bookable
+    inventory, and is not part of the travel distribution chain
+- id: iata-icao-coding
+  name: IATA/ICAO location and airline coding
+  conforms: true
+  evidence: SYD / YSSY airport codes; airlineCode and full IATA flight designators observed
+    in the /_a/flights payload
+  note: Used as data values, not as a published interface contract
+compliance_program:
+  published: false
+  certifications: []
+  note: No trust centre, no SOC 2 / ISO 27001 / PCI DSS certification page, and no
+    compliance portal published. trust.sydneyairport.com.au does not resolve.

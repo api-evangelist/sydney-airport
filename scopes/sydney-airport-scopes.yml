@@ -1,0 +1,74 @@
+generated: '2026-07-28'
+method: derived
+source: authentication/sydney-airport-openid-configuration.json
+docs: null
+note: >-
+  Derived from the scopes_supported array of the ForgeRock Access Management
+  OpenID Connect Discovery document at https://id.syd.com.au/am/oauth2/.well-known/openid-configuration
+  (HTTP 200, harvested 2026-07-28), plus the scope string observed on the live
+  InfoSYD authorize redirect. Sydney Airport publishes no scope or permission
+  reference page - these are the values the identity provider itself advertises,
+  not documented product scopes.
+schemes:
+- name: SYDOAuth2
+  source: authentication/sydney-airport-openid-configuration.json
+  issuer: https://id.syd.com.au:443/am/oauth2
+  flows:
+  - flow: authorizationCode
+    authorizationUrl: https://id.syd.com.au:443/am/oauth2/authorize
+    tokenUrl: https://id.syd.com.au:443/am/oauth2/access_token
+scopes:
+- scope: openid
+  description: OpenID Connect authentication; requests an ID token.
+  standard: OpenID Connect Core 1.0
+  flows: [authorizationCode]
+  sources: [authentication/sydney-airport-openid-configuration.json]
+  observed_in_infosyd_request: true
+- scope: profile
+  description: Standard OpenID Connect profile claims for the authenticated partner
+    user.
+  standard: OpenID Connect Core 1.0
+  flows: [authorizationCode]
+  sources: [authentication/sydney-airport-openid-configuration.json]
+  observed_in_infosyd_request: true
+- scope: email
+  description: Standard OpenID Connect email claims.
+  standard: OpenID Connect Core 1.0
+  flows: [authorizationCode]
+  sources: [authentication/sydney-airport-openid-configuration.json]
+  observed_in_infosyd_request: true
+- scope: address
+  description: Standard OpenID Connect address claim.
+  standard: OpenID Connect Core 1.0
+  flows: [authorizationCode]
+  sources: [authentication/sydney-airport-openid-configuration.json]
+  observed_in_infosyd_request: false
+- scope: phone
+  description: Standard OpenID Connect phone_number claims.
+  standard: OpenID Connect Core 1.0
+  flows: [authorizationCode]
+  sources: [authentication/sydney-airport-openid-configuration.json]
+  observed_in_infosyd_request: false
+- scope: fr:idm:*
+  description: ForgeRock Identity Management platform scope advertised by the realm.
+    Vendor-default, not a Sydney Airport product scope.
+  standard: ForgeRock platform
+  flows: [authorizationCode, clientCredentials]
+  sources: [authentication/sydney-airport-openid-configuration.json]
+  observed_in_infosyd_request: false
+- scope: am-introspect-all-tokens
+  description: ForgeRock Access Management scope permitting introspection of all tokens.
+    Vendor-default administrative scope.
+  standard: ForgeRock platform
+  flows: [clientCredentials]
+  sources: [authentication/sydney-airport-openid-configuration.json]
+  observed_in_infosyd_request: false
+- scope: infosyd
+  description: Application scope for the InfoSYD airline / ground-handler / on-airport-tenant
+    portal. Not present in scopes_supported; observed on the live authorize request
+    issued by client_id INFOSYD_APP_Client.
+  standard: null
+  flows: [authorizationCode]
+  sources: ['observed: https://www.sydneyairport.com.au/infosyd authorize redirect,
+      2026-07-28']
+  observed_in_infosyd_request: true

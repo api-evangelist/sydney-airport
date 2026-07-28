@@ -1,0 +1,42 @@
+generated: '2026-07-28'
+method: searched
+source: https://www.sydneyairport.com.au/terms; review.yml probe log
+note: >-
+  Recorded absence, not an oversight in the harvest. Sydney Airport publishes no API,
+  so there is no versioning scheme, no deprecation policy, no Sunset/Deprecation header
+  contract, no service level agreement and no status page to capture. What it does
+  publish - a termination-at-will clause in the site terms of use - is the only
+  lifecycle commitment that touches a machine consumer, and it runs the wrong way.
+versioning:
+  scheme: none
+  current: null
+  docs: null
+  evidence: The undocumented /_a/ website backends carry no version segment, no version
+    header and no published change contract.
+deprecation:
+  policy_url: null
+  sunset_header: false
+  deprecation_header: false
+  evidence: No deprecation or sunset policy published anywhere on sydneyairport.com.au
+    or in its 383-URL sitemap.
+sla:
+  url: null
+  uptime_target: null
+  evidence: No API service level published. The airport publishes operational performance
+    (on-time performance, security wait times) as passenger information, not as a
+    contractual availability commitment to an integrator.
+status_page: null
+status_page_evidence: status.sydneyairport.com.au does not resolve; no status or
+  uptime page appears in the sitemap.
+termination:
+  at_will: true
+  verbatim: We reserve the right to suspend or terminate your access to our Online Services
+    at any time for operational, safety or security reasons
+  source: https://www.sydneyairport.com.au/terms
+  notice_period: none published
+deprecated_operations: []
+changelog:
+  api_changelog: false
+  corporate_newsroom: https://www.sydneyairport.com.au/corporate/media/corporate-newsroom
+  asx_newsroom: https://www.sydneyairport.com.au/investors/investors-centre/asx-newsroom
+  note: Corporate and ASX news exist; there is no technical or API changelog.

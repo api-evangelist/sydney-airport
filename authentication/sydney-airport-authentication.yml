@@ -1,0 +1,100 @@
+generated: '2026-07-28'
+method: derived
+source: authentication/sydney-airport-openid-configuration.json
+docs: null
+note: >-
+  Sydney Airport publishes no public API and therefore no OpenAPI securitySchemes.
+  The only machine-readable authentication contract it publishes is the OpenID
+  Connect Discovery 1.0 document for the ForgeRock Access Management realm that
+  fronts InfoSYD, its gated airline / ground-handler / on-airport-tenant portal.
+  Everything below is derived verbatim from that document (harvested 2026-07-28,
+  HTTP 200) plus the authorize request observed on the InfoSYD login redirect.
+  It describes how a credentialed partner authenticates - it does not describe any
+  callable resource API, because none is published.
+summary:
+  types:
+  - openIdConnect
+  - oauth2
+  api_key_in: []
+  oauth2_flows:
+  - authorizationCode
+  - implicit
+  - clientCredentials
+  - password
+  - deviceCode
+  - ciba
+  - jwtBearer
+  - saml2Bearer
+  - umaTicket
+  - refreshToken
+  public_self_serve: false
+  audience: airlines, ground handlers, border agencies and on-airport tenants with a
+    commercial or operational relationship with Sydney Airport Corporation Limited
+schemes:
+- name: SYDLogin
+  type: openIdConnect
+  openIdConnectUrl: https://id.syd.com.au/am/oauth2/.well-known/openid-configuration
+  issuer: https://id.syd.com.au:443/am/oauth2
+  vendor: ForgeRock Access Management (realm /alpha)
+  version: '3.0'
+  acr_values: [SYDLogin]
+  sources: [authentication/sydney-airport-openid-configuration.json]
+- name: SYDOAuth2
+  type: oauth2
+  sources: [authentication/sydney-airport-openid-configuration.json]
+  flows:
+  - flow: authorizationCode
+    authorizationUrl: https://id.syd.com.au:443/am/oauth2/authorize
+    tokenUrl: https://id.syd.com.au:443/am/oauth2/access_token
+    refreshUrl: https://id.syd.com.au:443/am/oauth2/access_token
+    pkce: true
+    pkce_methods: [S256, plain]
+    observed_client: INFOSYD_APP_Client
+    observed_scope: openid profile email infosyd
+    observed_redirect_uri: https://sydneyairport.com.au/infosyd/callback
+  - flow: implicit
+    authorizationUrl: https://id.syd.com.au:443/am/oauth2/authorize
+  - flow: clientCredentials
+    tokenUrl: https://id.syd.com.au:443/am/oauth2/access_token
+  - flow: password
+    tokenUrl: https://id.syd.com.au:443/am/oauth2/access_token
+endpoints:
+  authorization: https://id.syd.com.au:443/am/oauth2/authorize
+  token: https://id.syd.com.au:443/am/oauth2/access_token
+  userinfo: https://id.syd.com.au:443/am/oauth2/userinfo
+  jwks: https://id.syd.com.au:443/am/oauth2/connect/jwk_uri
+  introspection: https://id.syd.com.au:443/am/oauth2/introspect
+  revocation: https://id.syd.com.au:443/am/oauth2/token/revoke
+  registration: https://id.syd.com.au:443/am/oauth2/register
+  pushed_authorization_request: https://id.syd.com.au:443/am/oauth2/par
+  end_session: https://id.syd.com.au:443/am/oauth2/connect/endSession
+  check_session_iframe: https://id.syd.com.au:443/am/oauth2/connect/checkSession
+client_authentication:
+  methods:
+  - client_secret_basic
+  - client_secret_post
+  - private_key_jwt
+  - tls_client_auth
+  - self_signed_tls_client_auth
+  - none
+  mtls_bound_access_tokens: true
+  require_pushed_authorization_requests: false
+  require_request_uri_registration: true
+tokens:
+  id_token_signing_alg: [RS256, RS384, RS512, PS256, PS384, PS512, ES256, ES384, ES512,
+    HS256, HS384, HS512]
+  id_token_encryption_alg: [RSA-OAEP, RSA-OAEP-256, ECDH-ES, ECDH-ES+A128KW, ECDH-ES+A192KW,
+    ECDH-ES+A256KW, A128KW, A192KW, A256KW, dir]
+  subject_types: [public, pairwise]
+  response_types: [code, 'code id_token', 'code token', 'code token id_token', id_token,
+    token, 'token id_token', device_code]
+  response_modes: [query, fragment, form_post, jwt, query.jwt, fragment.jwt, form_post.jwt]
+  backchannel_logout_supported: true
+unauthenticated_surfaces:
+- url: https://www.sydneyairport.com.au/_a/flights
+  auth: none
+  note: Undocumented website backend. No key, no token, no published contract; the
+    site terms of use prohibit automated retrieval.
+- url: https://www.sydneyairport.com.au/_a/security-wait-times
+  auth: none
+  note: Undocumented website backend, same posture.

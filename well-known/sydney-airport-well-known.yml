@@ -1,0 +1,85 @@
+generated: '2026-07-28'
+method: searched
+source: live probes of the Sydney Airport web host and the id.syd.com.au identity provider
+hosts:
+- host: https://www.sydneyairport.com.au
+  role: public website (Contentful-backed); no API is served here
+  documents:
+  - path: /.well-known/security.txt
+    status: 200
+    file: sydney-airport-security.txt
+    standard: RFC 9116
+    note: 'Contact is obfuscated (cybersafety_[at]_syd[dot]com[dot]au). The advertised
+      Policy URL https://www.sydneyairport.com.au/vulnerability-disclosure-policy returns
+      HTTP 404 - the file points at a page that does not exist.'
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+    standard: RFC 9727
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/change-password
+    status: 404
+  - path: /.well-known/dnt-policy.txt
+    status: 404
+  - path: /llms.txt
+    status: 404
+- host: https://id.syd.com.au
+  role: ForgeRock Access Management identity provider (realm /alpha) fronting the InfoSYD
+    partner portal
+  documents:
+  - path: /am/oauth2/.well-known/openid-configuration
+    status: 200
+    file: ../authentication/sydney-airport-openid-configuration.json
+    standard: OpenID Connect Discovery 1.0
+    note: The single machine-readable contract Sydney Airport publishes. Harvested verbatim
+      2026-07-28.
+  - path: /am/oauth2/.well-known/oauth-authorization-server
+    status: 404
+    standard: RFC 8414
+  - path: /.well-known/oauth-authorization-server
+    status: 501
+    standard: RFC 8414
+    note: Returns HTTP 501 rather than a metadata document; the authorization-server
+      metadata is only reachable at the OIDC discovery path above.
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+    standard: RFC 9728
+  - path: /.well-known/security.txt
+    status: 404
+- host: https://api.sydneyairport.com.au
+  role: DNS resolves; terminates on Microsoft-Azure-Application-Gateway/v2 with no backend
+  documents:
+  - path: /openapi.json
+    status: 502
+  - path: /swagger.json
+    status: 502
+  - path: /v1/openapi.json
+    status: 502
+  - path: /api-docs
+    status: 502
+  - path: /docs
+    status: 502
+  - path: /redoc
+    status: 502
+  - path: /graphql
+    status: 502
+- host: https://developer.sydneyairport.com.au
+  role: DNS resolves; same Azure Application Gateway, no backend
+  documents:
+  - path: /openapi.json
+    status: 502
+  - path: /llms.txt
+    status: 502
+summary:
+  documents_found: 2
+  api_catalog: false
+  openid_configuration: true
+  oauth_authorization_server: false
+  security_txt: true
+  ai_plugin: false
