@@ -1,5 +1,7 @@
 aid: sydney-airport
 url: https://raw.githubusercontent.com/api-evangelist/sydney-airport/refs/heads/main/apis.yml
+x-api-posture: docs-gated
+x-api-posture-basis: observed
 name: Sydney Airport
 kind: company
 humanURL: https://www.sydneyairport.com.au/
