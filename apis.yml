@@ -20,6 +20,17 @@ description: Sydney Airport Corporation Limited (ACN 082 578 809) operates Sydne
   indexing of the site, so there is public data but no public interface - and no
   documented exit path beyond an Australian Privacy Principle 12 personal-information
   access request.
+deliveryModel:
+  model: saas
+  open_source: false
+  commercial: true
+  callable_host: false
+  label: Hosted service · you call their endpoint
+  confidence: medium
+  source:
+  - pricing
+  generated: '2026-08-28'
+  method: derived
 accessModel:
   pricing: unknown
   onboarding: unknown
